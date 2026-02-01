@@ -1,12 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Backend.Application.DTOs
 {
-    internal class CreateTransactionDto
+    public class CreateTransactionDto
     {
+        [Required(ErrorMessage = "Số tiền không được để trống")]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Số tiền phải lớn hơn 0")]
+        public decimal Amount { get; set; }
+
+        public string? Description { get; set; }
+
+        [Required]
+        public DateTime Date { get; set; } = DateTime.Now;
+
+        [Required(ErrorMessage = "Vui lòng chọn danh mục")]
+        public int CategoryId { get; set; }
     }
 }

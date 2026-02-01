@@ -1,12 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Backend.Domain.Entities;
 
 namespace Backend.Application.Interfaces
 {
-    internal class ITransactionRepository
+    public interface ITransactionRepository
     {
+        Task<IEnumerable<Transaction>> GetAllByUserIdAsync(int userId);
+
+        Task<Transaction?> GetByIdAsync(int id, int userId);
+
+        Task AddAsync(Transaction transaction);
+
+        Task UpdateAsync(Transaction transaction);
+
+        Task DeleteAsync(Transaction transaction);
     }
 }
