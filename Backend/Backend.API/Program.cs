@@ -1,4 +1,5 @@
 ﻿using Backend.Application.Interfaces;
+using Backend.Application.Services;
 using Backend.Infrastructure.Data;
 using Backend.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Builder;
@@ -22,6 +23,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Scoped: Mỗi một request (yêu cầu) gửi lên sẽ tạo mới một instance, xong thì hủy. Rất tiết kiệm bộ nhớ.
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
 
 // Cấu hình Swagger (Tài liệu API)
 builder.Services.AddEndpointsApiExplorer();
