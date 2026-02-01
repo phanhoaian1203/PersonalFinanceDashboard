@@ -1,13 +1,43 @@
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// ==============================================
+// PHẦN 1: ĐĂNG KÝ DỊCH VỤ (SERVICES)
+// (Phải làm trước khi builder.Build())
+// ==============================================
+
+// 1. Thêm Controllers (Quan trọng cho dự án lớn)
+builder.Services.AddControllers();
+
+// 2. Cấu hình Swagger (Tài liệu API)
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// 3. Thêm dịch vụ CORS (Sửa lỗi vị trí cũ)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:5173") // Cho phép Frontend gọi vào
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
+
+// ==============================================
+// PHẦN 2: XÂY DỰNG ỨNG DỤNG
+// ==============================================
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// ==============================================
+// PHẦN 3: CẤU HÌNH PIPELINE (MIDDLEWARE)
+// ==============================================
+
+// Cấu hình môi trường Development
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -16,29 +46,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+// Kích hoạt CORS (Nên đặt trước Authorization)
+app.UseCors("AllowReactApp");
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
+app.UseAuthorization();
+
+// Map các Controllers vào ứng dụng
+app.MapControllers();
 
 app.Run();
-
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
