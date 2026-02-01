@@ -1,0 +1,17 @@
+# --- PHẦN CHO C# .NET ---
+**/bin/
+**/obj/
+.vs/
+*.user
+*.suo
+
+# --- PHẦN CHO REACT/NODEJS ---
+node_modules/
+dist/
+build/
+.env
+.env.local
+.DS_Store
+
+# --- KHÁC ---
+.vscode/
