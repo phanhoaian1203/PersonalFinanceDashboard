@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Backend.Application.DTOs;
 
 namespace Backend.Application.Interfaces
 {
-    internal class ICategoryService
+    public interface ICategoryService
     {
+        Task<IEnumerable<CategoryDto>> GetAllByUserIdAsync(int userId);
     }
 }

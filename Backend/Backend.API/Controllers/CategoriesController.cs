@@ -1,5 +1,4 @@
-﻿using Backend.Application.DTOs;
-using Backend.Application.Interfaces;
+﻿using Backend.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.API.Controllers
@@ -8,28 +7,18 @@ namespace Backend.API.Controllers
     [ApiController]
     public class CategoriesController : ControllerBase
     {
-        private readonly ICategoryRepository _categoryRepository;
-
-        public CategoriesController(ICategoryRepository categoryRepository)
+        private readonly ICategoryService _categoryService;
+        public CategoriesController(ICategoryService categoryService)
         {
-            _categoryRepository = categoryRepository;
+            _categoryService = categoryService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] int userId = 1)
         {
-            var categories = await _categoryRepository.GetAllByUserIdAsync(userId);
-
-            var dtos = categories.Select(c => new CategoryDto
-            {
-                Id = c.Id,
-                Name = c.Name,
-                Type = c.Type,
-                Icon = c.Icon,
-                Color = c.Color
-            });
-
-            return Ok(dtos);
+            // Controller cực kỳ mỏng (Thin Controller), chỉ gọi và trả kết quả
+            var result = await _categoryService.GetAllByUserIdAsync(userId);
+            return Ok(result);
         }
     }
 }

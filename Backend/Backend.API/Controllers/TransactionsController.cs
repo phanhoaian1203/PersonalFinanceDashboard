@@ -8,7 +8,6 @@ namespace Backend.API.Controllers
     [ApiController]
     public class TransactionsController : ControllerBase
     {
-        // Bây giờ chúng ta gọi Service, KHÔNG gọi Repository nữa
         private readonly ITransactionService _transactionService;
 
         public TransactionsController(ITransactionService transactionService)
@@ -28,12 +27,12 @@ namespace Backend.API.Controllers
         {
             try
             {
-                var result = await _transactionService.CreateAsync(createDto, 1); // UserId = 1
+                var result = await _transactionService.CreateAsync(createDto, 1); 
                 return CreatedAtAction(nameof(GetAll), new { id = result.Id }, result);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message); // Bắt lỗi nghiệp vụ từ Service trả ra
+                return BadRequest(ex.Message); 
             }
         }
 

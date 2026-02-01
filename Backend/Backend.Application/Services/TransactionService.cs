@@ -7,7 +7,7 @@ namespace Backend.Application.Services
     public class TransactionService : ITransactionService
     {
         private readonly ITransactionRepository _repository;
-        private readonly ICategoryRepository _categoryRepository; // Inject thêm để lấy tên Category
+        private readonly ICategoryRepository _categoryRepository; 
 
         public TransactionService(ITransactionRepository repository, ICategoryRepository categoryRepository)
         {

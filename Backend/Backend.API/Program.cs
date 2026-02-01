@@ -23,8 +23,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Scoped: Mỗi một request (yêu cầu) gửi lên sẽ tạo mới một instance, xong thì hủy. Rất tiết kiệm bộ nhớ.
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
-builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
 // Cấu hình Swagger (Tài liệu API)
 builder.Services.AddEndpointsApiExplorer();
