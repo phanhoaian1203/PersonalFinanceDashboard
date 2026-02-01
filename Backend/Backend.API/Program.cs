@@ -1,4 +1,8 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Backend.Application.Interfaces;
+using Backend.Infrastructure.Data;
+using Backend.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -9,14 +13,21 @@ var builder = WebApplication.CreateBuilder(args);
 // (Phải làm trước khi builder.Build())
 // ==============================================
 
-// 1. Thêm Controllers (Quan trọng cho dự án lớn)
+// Thêm Controllers (Quan trọng cho dự án lớn)
 builder.Services.AddControllers();
 
-// 2. Cấu hình Swagger (Tài liệu API)
+// Đăng ký kết nối Database (SQL Server)
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Scoped: Mỗi một request (yêu cầu) gửi lên sẽ tạo mới một instance, xong thì hủy. Rất tiết kiệm bộ nhớ.
+builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+
+// Cấu hình Swagger (Tài liệu API)
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// 3. Thêm dịch vụ CORS (Sửa lỗi vị trí cũ)
+// Thêm dịch vụ CORS (Sửa lỗi vị trí cũ)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp",
