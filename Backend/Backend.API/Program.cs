@@ -2,10 +2,14 @@
 using Backend.Application.Services;
 using Backend.Infrastructure.Data;
 using Backend.Infrastructure.Repositories;
+using Backend.Infrastructure.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,10 +31,26 @@ builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
+builder.Services.AddScoped<IAuthService, AuthService>();
+
 // Cấu hình Swagger (Tài liệu API)
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+// ===> 2. Cấu hình xác thực JWT (Authentication)
+var secretKey = builder.Configuration["JwtSettings:SecretKey"];
+var keyBytes = Encoding.UTF8.GetBytes(secretKey!);
 
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
+            ValidateIssuer = false, // Tạm thời bỏ qua Issuer/Audience cho đơn giản
+            ValidateAudience = false
+        };
+    });
 // Thêm dịch vụ CORS (Sửa lỗi vị trí cũ)
 builder.Services.AddCors(options =>
 {
@@ -63,7 +83,7 @@ app.UseHttpsRedirection();
 
 // Kích hoạt CORS (Nên đặt trước Authorization)
 app.UseCors("AllowReactApp");
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 // Map các Controllers vào ứng dụng
