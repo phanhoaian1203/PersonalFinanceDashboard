@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import transactionService from "../services/transactionService";
+import TransactionForm from "../components/TransactionForm";
 
 const Dashboard = () => {
     const [transactions, setTransactions] = useState([]);
@@ -26,12 +27,19 @@ const Dashboard = () => {
     if (loading) return <p>Đang tải dữ liệu...</p>;
 
     return (
-        <div style={{ padding: "20px" }}>
-            <h1>Quản lý Chi tiêu cá nhân</h1>
+        <div style={{ padding: "20px", maxWidth: "1000px", margin: "0 auto" }}>
+            <h1 style={{ textAlign: "center" }}>Quản lý Chi tiêu cá nhân</h1>
             
-            {/* Hiển thị danh sách dạng bảng đơn giản */}
+            {/* Truyền hàm fetchTransactions xuống để Form gọi sau khi thêm xong */}
+            <TransactionForm onSuccess={fetchTransactions} />
+
+            <hr style={{ margin: "20px 0" }} />
+
+            {/* Bảng dữ liệu cũ */}
+            <h3>Lịch sử giao dịch</h3>
             <table border="1" cellPadding="10" style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
+               {/* ... Giữ nguyên phần table cũ ... */}
+               <thead>
                     <tr>
                         <th>Ngày</th>
                         <th>Danh mục</th>
@@ -45,7 +53,6 @@ const Dashboard = () => {
                         <tr key={t.id}>
                             <td>{new Date(t.date).toLocaleDateString("vi-VN")}</td>
                             <td>
-                                {/* Hiển thị màu sắc danh mục */}
                                 <span style={{ color: t.color, fontWeight: "bold" }}>
                                     {t.categoryName}
                                 </span>
@@ -53,11 +60,14 @@ const Dashboard = () => {
                             <td>{t.description}</td>
                             <td style={{ 
                                 color: t.type === "Income" ? "green" : "red", 
-                                fontWeight: "bold" 
+                                fontWeight: "bold",
+                                textAlign: "right"
                             }}>
                                 {t.amount.toLocaleString("vi-VN")} đ
                             </td>
-                            <td>{t.type === "Income" ? "Thu nhập" : "Chi tiêu"}</td>
+                            <td style={{ textAlign: "center" }}>
+                                {t.type === "Income" ? "Thu" : "Chi"}
+                            </td>
                         </tr>
                     ))}
                 </tbody>
@@ -65,5 +75,6 @@ const Dashboard = () => {
         </div>
     );
 };
+
 
 export default Dashboard;
