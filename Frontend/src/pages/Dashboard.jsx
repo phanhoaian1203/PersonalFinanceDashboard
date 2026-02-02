@@ -5,12 +5,13 @@ import TransactionForm from "../components/TransactionForm";
 const Dashboard = () => {
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
+    
+    // State lưu giao dịch đang được chọn để sửa (null = không sửa gì cả)
+    const [editingTransaction, setEditingTransaction] = useState(null);
 
-    // Hàm gọi API
     const fetchTransactions = async () => {
         try {
-            // Gọi service, hard-code userId = 1 như Backend đang test
-            const data = await transactionService.getAll(1); 
+            const data = await transactionService.getAll(1);
             setTransactions(data);
         } catch (error) {
             console.error("Không lấy được dữ liệu:", error);
@@ -19,33 +20,54 @@ const Dashboard = () => {
         }
     };
 
-    // useEffect chạy 1 lần khi trang vừa load
     useEffect(() => {
         fetchTransactions();
     }, []);
 
-    if (loading) return <p>Đang tải dữ liệu...</p>;
+    // Hàm xử lý Xóa
+    const handleDelete = async (id) => {
+        if (window.confirm("Bạn có chắc chắn muốn xóa giao dịch này?")) {
+            try {
+                await transactionService.delete(id);
+                alert("Đã xóa!");
+                fetchTransactions(); // Load lại danh sách
+            } catch (error) {
+                console.error("Lỗi xóa:", error);
+                alert("Không xóa được!");
+            }
+        }
+    };
+
+    // Hàm xử lý khi bấm nút Sửa (chỉ đơn giản là set dữ liệu vào state để Form tự bắt)
+    const handleEdit = (transaction) => {
+        setEditingTransaction(transaction);
+        // Cuộn màn hình lên đầu để người dùng thấy Form
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
     return (
-        <div style={{ padding: "20px", maxWidth: "1000px", margin: "0 auto" }}>
-            <h1 style={{ textAlign: "center" }}>Quản lý Chi tiêu cá nhân</h1>
+        <div style={{ padding: "20px", maxWidth: "1000px", margin: "0 auto", fontFamily: "Arial, sans-serif" }}>
+            <h1 style={{ textAlign: "center", color: "#333" }}>Quản lý Chi tiêu cá nhân</h1>
             
-            {/* Truyền hàm fetchTransactions xuống để Form gọi sau khi thêm xong */}
-            <TransactionForm onSuccess={fetchTransactions} />
+            {/* Truyền thêm props edit xuống Form */}
+            <TransactionForm 
+                onSuccess={fetchTransactions} 
+                editingTransaction={editingTransaction}
+                cancelEdit={() => setEditingTransaction(null)}
+            />
 
-            <hr style={{ margin: "20px 0" }} />
+            <hr style={{ margin: "30px 0", borderTop: "1px solid #eee" }} />
 
-            {/* Bảng dữ liệu cũ */}
-            <h3>Lịch sử giao dịch</h3>
-            <table border="1" cellPadding="10" style={{ width: "100%", borderCollapse: "collapse" }}>
-               {/* ... Giữ nguyên phần table cũ ... */}
-               <thead>
-                    <tr>
+            <h3>📜 Lịch sử giao dịch</h3>
+            <table border="1" cellPadding="12" style={{ width: "100%", borderCollapse: "collapse", borderColor: "#ddd" }}>
+                <thead>
+                    <tr style={{ backgroundColor: "#f8f9fa" }}>
                         <th>Ngày</th>
                         <th>Danh mục</th>
                         <th>Mô tả</th>
                         <th>Số tiền</th>
                         <th>Loại</th>
+                        <th>Hành động</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -66,7 +88,32 @@ const Dashboard = () => {
                                 {t.amount.toLocaleString("vi-VN")} đ
                             </td>
                             <td style={{ textAlign: "center" }}>
-                                {t.type === "Income" ? "Thu" : "Chi"}
+                                <span style={{ 
+                                    padding: "4px 8px", 
+                                    borderRadius: "4px", 
+                                    backgroundColor: t.type === "Income" ? "#d4edda" : "#f8d7da",
+                                    color: t.type === "Income" ? "#155724" : "#721c24",
+                                    fontSize: "12px"
+                                }}>
+                                    {t.type === "Income" ? "Thu" : "Chi"}
+                                </span>
+                            </td>
+                            <td style={{ textAlign: "center" }}>
+                                {/* Nút Sửa */}
+                                <button 
+                                    onClick={() => handleEdit(t)}
+                                    style={{ marginRight: "5px", cursor: "pointer", padding: "5px 10px", backgroundColor: "#ffc107", border: "none", borderRadius: "4px" }}
+                                >
+                                    Sửa
+                                </button>
+                                
+                                {/* Nút Xóa */}
+                                <button 
+                                    onClick={() => handleDelete(t.id)}
+                                    style={{ cursor: "pointer", padding: "5px 10px", backgroundColor: "#dc3545", color: "white", border: "none", borderRadius: "4px" }}
+                                >
+                                    Xóa
+                                </button>
                             </td>
                         </tr>
                     ))}
@@ -75,6 +122,5 @@ const Dashboard = () => {
         </div>
     );
 };
-
 
 export default Dashboard;
